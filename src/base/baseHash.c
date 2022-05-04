@@ -267,35 +267,35 @@ unsigned bhash_count( bhash_table_t *ht )
     return ht->count;
 }
 
-bhash_iterator_t* bhash_first( bhash_table_t *ht,
-					   bhash_iterator_t *it )
+bhash_iterator_t* bhash_first( bhash_table_t *ht, bhash_iterator_t *it )
 {
     it->index = 0;
     it->entry = NULL;
 
     for (; it->index <= ht->rows; ++it->index) {
-	it->entry = ht->table[it->index];
-	if (it->entry) {
-	    break;
-	}
+    	it->entry = ht->table[it->index];
+    	if (it->entry)
+        {
+    	    break;
+    	}
     }
 
     return it->entry ? it : NULL;
 }
 
-bhash_iterator_t* bhash_next( bhash_table_t *ht, 
-					  bhash_iterator_t *it )
+bhash_iterator_t* bhash_next( bhash_table_t *ht, bhash_iterator_t *it )
 {
     it->entry = it->entry->next;
     if (it->entry) {
-	return it;
+    	return it;
     }
 
-    for (++it->index; it->index <= ht->rows; ++it->index) {
-	it->entry = ht->table[it->index];
-	if (it->entry) {
-	    break;
-	}
+    for (++it->index; it->index <= ht->rows; ++it->index)
+    {
+    	it->entry = ht->table[it->index];
+    	if (it->entry) {
+    	    break;
+    	}
     }
 
     return it->entry ? it : NULL;

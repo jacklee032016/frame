@@ -35,40 +35,46 @@ int fifobuf_test()
     bfifobuf_init (&fifo, buffer, SIZE);
     
     // Test 1
-    for (i=0; i<LOOP*MAX_ENTRIES; ++i) {
-	int size;
-	int c, f;
-	c = i%2;
-	f = (i+1)%2;
-	do {
-	    size = MIN_SIZE+(brand() % MAX_SIZE);
-	    entries[c] = bfifobuf_alloc (&fifo, size);
-	} while (entries[c] == 0);
-	if ( i!=0) {
-	    bfifobuf_free(&fifo, entries[f]);
-	}
+    for (i=0; i<LOOP*MAX_ENTRIES; ++i)
+    {
+        	int size;
+        	int c, f;
+        	c = i%2;
+        	f = (i+1)%2;
+
+            do {
+        	    size = MIN_SIZE+(brand() % MAX_SIZE);
+        	    entries[c] = bfifobuf_alloc (&fifo, size);
+        	} while (entries[c] == 0);
+            
+        	if ( i!=0) {
+        	    bfifobuf_free(&fifo, entries[f]);
+        	}
     }
+    
     if (entries[(i+1)%2])
-	bfifobuf_free(&fifo, entries[(i+1)%2]);
+    	bfifobuf_free(&fifo, entries[(i+1)%2]);
 
     if (bfifobuf_max_size(&fifo) < SIZE-4) {
-	bassert(0);
-	return -1;
+    	bassert(0);
+    	return -1;
     }
 
     // Test 2
     entries[0] = bfifobuf_alloc (&fifo, MIN_SIZE);
     if (!entries[0]) return -1;
     for (i=0; i<LOOP*MAX_ENTRIES; ++i) {
-	int size = MIN_SIZE+(brand() % MAX_SIZE);
-	entries[1] = bfifobuf_alloc (&fifo, size);
-	if (entries[1])
-	    bfifobuf_unalloc(&fifo, entries[1]);
+        	int size = MIN_SIZE+(brand() % MAX_SIZE);
+        	entries[1] = bfifobuf_alloc (&fifo, size);
+        	if (entries[1])
+        	    bfifobuf_unalloc(&fifo, entries[1]);
     }
+    
     bfifobuf_unalloc(&fifo, entries[0]);
+    
     if (bfifobuf_max_size(&fifo) < SIZE-4) {
-	bassert(0);
-	return -2;
+    	bassert(0);
+    	return -2;
     }
 
     // Test 3

@@ -27,11 +27,13 @@ unsigned bfifobuf_max_size (bfifobuf_t *fifobuf)
 
     BASE_CHECK_STACK();
 
-    if (fifobuf->uend >= fifobuf->ubegin) {
-	s1 = (unsigned)(fifobuf->last - fifobuf->uend);
-	s2 = (unsigned)(fifobuf->ubegin - fifobuf->first);
-    } else {
-	s1 = s2 = (unsigned)(fifobuf->ubegin - fifobuf->uend);
+    if (fifobuf->uend >= fifobuf->ubegin)
+    {
+      	s1 = (unsigned)(fifobuf->last - fifobuf->uend);
+       	s2 = (unsigned)(fifobuf->ubegin - fifobuf->first);
+    }
+    else {
+    	s1 = s2 = (unsigned)(fifobuf->ubegin - fifobuf->uend);// after init, max_size is 0??
     }
     
     return s1<s2 ? s2 : s1;
@@ -45,41 +47,49 @@ void* bfifobuf_alloc (bfifobuf_t *fifobuf, unsigned size)
     BASE_CHECK_STACK();
 
     if (fifobuf->full) {
-	BASE_INFO("fifobuf_alloc fifobuf=%p, size=%d: full!", fifobuf, size);
-	return NULL;
+	    BASE_INFO("fifobuf_alloc fifobuf=%p, size=%d: full!", fifobuf, size);
+    	return NULL;
     }
 
     /* try to allocate from the end part of the fifo */
-    if (fifobuf->uend >= fifobuf->ubegin) {
-	available = (unsigned)(fifobuf->last - fifobuf->uend);
-	if (available >= size+SZ) {
-	    char *ptr = fifobuf->uend;
-	    fifobuf->uend += (size+SZ);
-	    if (fifobuf->uend == fifobuf->last)
-		fifobuf->uend = fifobuf->first;
-	    if (fifobuf->uend == fifobuf->ubegin)
-		fifobuf->full = 1;
-	    *(unsigned*)ptr = size+SZ;
-	    ptr += SZ;
+    if (fifobuf->uend >= fifobuf->ubegin)
+    {
+    	available = (unsigned)(fifobuf->last - fifobuf->uend);
+    	if (available >= size+SZ)
+        {
+    	    char *ptr = fifobuf->uend;
+    	    fifobuf->uend += (size+SZ);
+            
+    	    if (fifobuf->uend == fifobuf->last)
+        		fifobuf->uend = fifobuf->first;
+            
+    	    if (fifobuf->uend == fifobuf->ubegin)
+        		fifobuf->full = 1;
+            
+    	    *(unsigned*)ptr = size+SZ; // save length in ptr; length|return pointer position
+    	    ptr += SZ;
 
-	    BASE_INFO("fifobuf_alloc fifobuf=%p, size=%d: returning %p, p1=%p, p2=%p", fifobuf, size, ptr, fifobuf->ubegin, fifobuf->uend);
-	    return ptr;
-	}
+    	    BASE_INFO("fifobuf_alloc fifobuf=%p, size=%d: returning %p, p1=%p, p2=%p", fifobuf, size, ptr, fifobuf->ubegin, fifobuf->uend);
+    	    return ptr;
+    	}
     }
 
     /* try to allocate from the start part of the fifo */
     start = (fifobuf->uend <= fifobuf->ubegin) ? fifobuf->uend : fifobuf->first;
     available = (unsigned)(fifobuf->ubegin - start);
-    if (available >= size+SZ) {
-	char *ptr = start;
-	fifobuf->uend = start + size + SZ;
-	if (fifobuf->uend == fifobuf->ubegin)
-	    fifobuf->full = 1;
-	*(unsigned*)ptr = size+SZ;
-	ptr += SZ;
+    if (available >= size+SZ)
+    {
+    	char *ptr = start;
+        
+    	fifobuf->uend = start + size + SZ;
+    	if (fifobuf->uend == fifobuf->ubegin)
+    	    fifobuf->full = 1;
+        
+    	*(unsigned*)ptr = size+SZ;
+    	ptr += SZ;
 
-	BASE_INFO("fifobuf_alloc fifobuf=%p, size=%d: returning %p, p1=%p, p2=%p", fifobuf, size, ptr, fifobuf->ubegin, fifobuf->uend);
-	return ptr;
+    	BASE_INFO("fifobuf_alloc fifobuf=%p, size=%d: returning %p, p1=%p, p2=%p", fifobuf, size, ptr, fifobuf->ubegin, fifobuf->uend);
+    	return ptr;
     }
 
     BASE_INFO("fifobuf_alloc fifobuf=%p, size=%d: no space left! p1=%p, p2=%p", 
@@ -96,15 +106,15 @@ bstatus_t bfifobuf_unalloc (bfifobuf_t *fifobuf, void *buf)
     BASE_CHECK_STACK();
 
     ptr -= SZ;
-    sz = *(unsigned*)ptr;
+    sz = *(unsigned*)ptr; // get length of buf
 
     endptr = fifobuf->uend;
     if (endptr == fifobuf->first)
-	endptr = fifobuf->last;
+    	endptr = fifobuf->last;
 
     if (ptr+sz != endptr) {
-	bassert(!"Invalid pointer to undo alloc");
-	return -1;
+    	bassert(!"Invalid pointer to undo alloc");
+    	return -1;
     }
 
     fifobuf->uend = ptr;
@@ -125,31 +135,31 @@ bstatus_t bfifobuf_free (bfifobuf_t *fifobuf, void *buf)
 
     ptr -= SZ;
     if (ptr < fifobuf->first || ptr >= fifobuf->last) {
-	bassert(!"Invalid pointer to free");
-	return -1;
+    	bassert(!"Invalid pointer to free");
+    	return -1;
     }
 
     if (ptr != fifobuf->ubegin && ptr != fifobuf->first) {
-	bassert(!"Invalid free() sequence!");
-	return -1;
+    	bassert(!"Invalid free() sequence!");
+    	return -1;
     }
 
     end = (fifobuf->uend > fifobuf->ubegin) ? fifobuf->uend : fifobuf->last;
     sz = *(unsigned*)ptr;
     if (ptr+sz > end) {
-	bassert(!"Invalid size!");
-	return -1;
+    	bassert(!"Invalid size!");
+    	return -1;
     }
 
     fifobuf->ubegin = ptr + sz;
 
     /* Rollover */
     if (fifobuf->ubegin == fifobuf->last)
-	fifobuf->ubegin = fifobuf->first;
+    	fifobuf->ubegin = fifobuf->first;
 
     /* Reset if fifobuf is empty */
     if (fifobuf->ubegin == fifobuf->uend)
-	fifobuf->ubegin = fifobuf->uend = fifobuf->first;
+    	fifobuf->ubegin = fifobuf->uend = fifobuf->first;
 
     fifobuf->full = 0;
 
