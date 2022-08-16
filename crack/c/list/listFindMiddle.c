@@ -63,6 +63,10 @@ int listFindMiddle(SNode *head)
 // find the nth item from the end of the list
 int listFindNthFromEnd(SNode *head, int nth)
 {
+/*
+* find size of list, size> n;
+* then loop from beginning for size-n+1 items
+*/
     int i = 0;
     SNode *cur = head, *find = head;
 
@@ -74,7 +78,8 @@ int listFindNthFromEnd(SNode *head, int nth)
             break;
     }
 
-    if(!cur && i<nth) // border here: when just n items in list, cur will be null 
+//    if(!cur && i<nth) // border here: when just n items in list, cur will be null 
+    if(!cur || i<nth)
     {// list length is smaller than n
         return -1;
     }
@@ -88,11 +93,12 @@ int listFindNthFromEnd(SNode *head, int nth)
     return find->data;
 }
 
-/* loop at B: next of 2 different nodes pint to same node
+/* loop at B: next of 2 different nodes point to same node
 *     A--> B  --> C
 *          ^      |
 *          |      
 *          E <--  D
+
 *  node->next will never be null
 * method:
 *   1. fast will catch up with slow node soon or late
@@ -110,9 +116,12 @@ int listDetectLoop(SNode *head)
         slow = slow->next;
         fast = fast->next->next;
 
+        /* node->next never be null, so soon or later
+        * fast and slow are same node: not fast->next and slow->next point to same node
+        */
         if(fast == slow)
         {
-            printf("Looped on node %d\n", fast->data);
+            printf("Find looped on node %d\n", fast->data);
             return 1;
         }
 
@@ -134,8 +143,8 @@ int listRemoveLoop(SNode *head)
         fast = fast->next->next;
 
         if(fast == slow)
-        {
-            printf("Looped on node %d\n", fast->data);
+        {// ? break the link list
+            printf("Remove looped on node %d\n", fast->data);
             slow->next = NULL;
             return 1;
         }
@@ -204,11 +213,11 @@ int main()
 
     listSinglePrint(list);
     printf("middle %d\n", listFindMiddle(list)); // when only one item, the middle is the only one
-    printf("last %dth is %d\n", nth, listFindNthFromEnd(list, nth));
+    printf("last %dth is %d\n\n", nth, listFindNthFromEnd(list, nth));
 
     list = listSingleInsert(list, 3);
     listSinglePrint(list);
-    printf("middle %d\n", listFindMiddle(list)); // when 2 (even) items, the middle is the second
+    printf("middle %d\n\n", listFindMiddle(list)); // when 2 (even) items, the middle is the second
 
     list = listSingleInsert(list, 5);
     listSinglePrint(list);
@@ -220,17 +229,17 @@ int main()
     
     list = listSingleInsert(list, 9);
     listSinglePrint(list);
-    printf("last %dth is %d\n", nth, listFindNthFromEnd(list, nth));
+    printf("last %dth is %d\n\n", nth, listFindNthFromEnd(list, nth));
     
     list = listSingleInsert(list, 11);
     listSinglePrint(list);
     printf("middle %d\n", listFindMiddle(list)); // even number of items, the first one of the last half
-    printf("last %dth is %d\n", nth, listFindNthFromEnd(list, nth));
+    printf("last %dth is %d\n\n", nth, listFindNthFromEnd(list, nth));
 
     list = listSingleInsert(list, 13);
     listSinglePrint(list);
     printf("middle %d\n", listFindMiddle(list));// when odd number of items, the real middle
-    printf("last %dth is %d\n", nth, listFindNthFromEnd(list, nth));
+    printf("last %dth is %d\n\n", nth, listFindNthFromEnd(list, nth));
 
 
     testLoop();

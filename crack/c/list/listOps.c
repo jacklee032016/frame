@@ -59,9 +59,9 @@ Node* listAppend(List *list, int data)
         list->head = node;
 
     if(list->tail)
-        list->tail->next = node;
+        list->tail->next = node; // last->next point to node
         
-    list->tail = node;
+    list->tail = node; // now node is new tail
 
     return node;
 }

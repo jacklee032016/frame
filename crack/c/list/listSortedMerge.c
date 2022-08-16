@@ -58,6 +58,7 @@ void listSinglePrint(SortNode *head)
     printf("\n");
 }
 
+// recursing 
 SortNode* listSortedMerge(SortNode *lista, SortNode *listb)
 {
     SortNode *newList = NULL, *tmp = NULL;

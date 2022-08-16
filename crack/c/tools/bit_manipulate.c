@@ -2,6 +2,10 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+/*
+* big-endian is same as network byte order: MSB is in low address, and is sent first
+*/
+
 int check_little_endian(void)
 {
     int x = 0x67452301;
@@ -57,7 +61,7 @@ int check_little_endian2(void)
                         (((x)&0xFF00)<<8) | (((x)&0xFF0000)>>8) )
 
 
-int union_fields_endian(void)
+int revunion_fields_endian(void)
 {
     union u_field{
         int x;
@@ -131,10 +135,18 @@ int union_fields_endian(void)
 /*
 * v&(-v): get lowest set bit
 * for example, v=8, lowest set bit is 8; v=9, lowest set bit is 1
+* return the number which the least bit is setting
 */
 int get_lowest_set_bit(int v)
 {
+#if 1
     return v&(-v);
+#else
+    int tmp = v&(-v);
+    return log2(tmp&(tmp-1))+1;
+//    tmp &= ~tmp + 1;
+//    return tmp;
+#endif
 }
 
 

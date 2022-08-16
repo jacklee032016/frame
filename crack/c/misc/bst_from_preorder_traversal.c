@@ -16,7 +16,7 @@ typedef struct Stack
 {
     int top;
     int capacity;
-    Node* *array;
+    Node **array;
 } Stack;
  
 // A utility function to create a new tree node

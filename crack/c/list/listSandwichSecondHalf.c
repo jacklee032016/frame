@@ -7,9 +7,7 @@ Output: 1->6->2->5->3->4
 
 */
 
-// C++ program to sandwich the last part of
-// linked list in between the first part of
-// the linked list
+// C program to sandwich the last part of linked list in between the first part of the linked list
 #include<bits/stdc++.h>
 #include <stdio.h>
 using namespace std;
@@ -54,6 +52,7 @@ void modifyLL(struct node* root)
 	struct node *current1 = root, *current2 = root2;
 
 	// insert the elements in between
+	
 	while (current1 && current2) {
 
 		// next node to be traversed in the first list

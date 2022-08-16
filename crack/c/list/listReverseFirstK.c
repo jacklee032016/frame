@@ -35,6 +35,7 @@ int push(struct Node **head, int data)
     return 0;
 }
 
+// reverse the first pos item in list
 struct Node* reverse(struct Node *head, int pos)
 {
     struct Node *prev = NULL, *next = NULL, *current, *first;
@@ -48,7 +49,7 @@ struct Node* reverse(struct Node *head, int pos)
     while(current)
     {
         if(index >= pos)
-        {
+        {// the first item connect to k+1 item; the kth item is new header
 //            current->next = next->next;
             first->next = current;
             newHead = prev;
@@ -63,7 +64,7 @@ struct Node* reverse(struct Node *head, int pos)
         printf("%d %d; ", prev->data, current->data);
         index++;
         if(index == 1)
-        {
+        {// first item will connect to the k+1 item
             first = prev;
         }
     }
